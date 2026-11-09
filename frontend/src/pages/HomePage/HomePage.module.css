@@ -1,0 +1,13 @@
+.title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-blue-deep);
+  margin: 0 0 var(--space-2);
+  letter-spacing: -0.02em;
+}
+
+.lead {
+  color: var(--color-text-muted);
+  max-width: 40rem;
+  margin: 0 0 var(--space-8);
+}

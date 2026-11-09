@@ -1,0 +1,42 @@
+# --- Segredos e ambiente -------------------------------------------------------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# --- Python -------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.coverage
+htmlcov/
+*.egg-info/
+instance/
+
+# --- Node / Vite ----------------------------------------------------------------
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+npm-debug.log*
+
+# --- Banco de dados local ---------------------------------------------------------
+*.sqlite
+*.sqlite3
+*.db
+pgdata/
+
+# --- Editores e SO ----------------------------------------------------------------
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+
+# --- Logs ---------------------------------------------------------------------
+*.log
+logs/

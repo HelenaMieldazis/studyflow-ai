@@ -1,0 +1,43 @@
+# Infraestrutura local de desenvolvimento do StudyFlow AI.
+# Etapa 1: apenas PostgreSQL. O backend e o frontend rodam diretamente na máquina.
+# O Ollama será adicionado na Etapa 4.
+#
+# Uso:  docker compose up -d db
+# Lê as variáveis do arquivo .env na raiz (copie de .env.example).
+
+name: studyflow-ai
+
+services:
+  db:
+    # Imagem oficial com versão fixada (atualize o patch periodicamente).
+    image: postgres:16.15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?defina POSTGRES_USER no .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD no .env}
+      POSTGRES_DB: ${POSTGRES_DB:?defina POSTGRES_DB no .env}
+      POSTGRES_TEST_DB: ${POSTGRES_TEST_DB:-studyflow_test}
+      # Exige autenticação por senha com SCRAM-SHA-256 para conexões de rede.
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256"
+    ports:
+      # Publicado SOMENTE no loopback: o banco não fica acessível pela rede local/internet.
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # Script que cria o banco de testes na primeira inicialização (somente leitura).
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+
+volumes:
+  pgdata:

@@ -1,0 +1,80 @@
+.card {
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  max-width: 32rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.dot {
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.toneNeutral { background: var(--color-blue-academic); }
+.toneSuccess { background: var(--color-success); }
+.toneWarning { background: var(--color-warning); }
+.toneDanger { background: var(--color-danger); }
+
+.state {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-blue-deep);
+  margin: 0 0 var(--space-1);
+}
+
+.description {
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.checks {
+  margin: var(--space-4) 0 0;
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-gray-neutral);
+  border-radius: var(--radius-md);
+}
+
+.checkRow {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--space-1) 0;
+}
+
+.checkRow dt { color: var(--color-text-muted); }
+.checkRow dd { margin: 0; font-weight: 500; color: var(--color-text); }
+
+.button {
+  margin-top: var(--space-5);
+  font: inherit;
+  font-weight: 500;
+  color: var(--color-white);
+  background: var(--color-blue-deep);
+  border: none;
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-4);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.button:hover:not(:disabled) { background: var(--color-blue-academic); }
+.button:disabled { opacity: 0.6; cursor: not-allowed; }
