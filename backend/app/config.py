@@ -29,6 +29,18 @@ def _split_csv(value: str | None) -> list[str]:
     return [item.strip() for item in value.split(",") if item.strip()]
 
 
+def _bool_env(name: str, default: bool) -> bool:
+    raw = os.getenv(name)
+    if raw is None or raw.strip() == "":
+        return default
+    value = raw.strip().lower()
+    if value in {"1", "true", "yes", "on"}:
+        return True
+    if value in {"0", "false", "no", "off"}:
+        return False
+    raise RuntimeError(f"A variável de ambiente {name} deve ser true ou false.")
+
+
 def _int_env(name: str, default: int) -> int:
     raw = os.getenv(name)
     if raw is None or raw.strip() == "":
@@ -58,6 +70,31 @@ class BaseConfig:
     # Limite global do corpo das requisições (bytes). Requisições maiores recebem 413.
     MAX_CONTENT_LENGTH = _int_env("MAX_CONTENT_LENGTH", 1 * 1024 * 1024)
 
+    # --- Sessões de autenticação (cookie HttpOnly + registro no banco) ---------
+    # Em produção o cookie usa o prefixo __Host- (exige Secure, Path=/ e sem Domain).
+    AUTH_COOKIE_SECURE = _bool_env("AUTH_COOKIE_SECURE", True)
+    AUTH_COOKIE_NAME = "__Host-sf_session" if AUTH_COOKIE_SECURE else "sf_session"
+    AUTH_COOKIE_SAMESITE = "Lax"
+    # Sessão expira após este tempo sem uso (renovada automaticamente enquanto houver uso)...
+    SESSION_IDLE_TIMEOUT_MINUTES = _int_env("SESSION_IDLE_TIMEOUT_MINUTES", 120)
+    # ...e nunca dura mais que isto desde o login, mesmo com uso contínuo.
+    SESSION_ABSOLUTE_TIMEOUT_HOURS = _int_env("SESSION_ABSOLUTE_TIMEOUT_HOURS", 168)
+    # Intervalo mínimo entre atualizações de "último uso" (evita uma escrita por requisição).
+    SESSION_TOUCH_INTERVAL_SECONDS = 300
+
+    # --- Limitação de requisições (Flask-Limiter) -------------------------------
+    RATELIMIT_ENABLED = True
+    # memory:// funciona para um único processo. Com vários workers, use Redis (Etapa 8).
+    RATELIMIT_STORAGE_URI = os.getenv("RATELIMIT_STORAGE_URI", "memory://")
+    RATELIMIT_HEADERS_ENABLED = True
+    RATELIMIT_DEFAULT = "300 per minute"
+    RATELIMIT_KEY_PREFIX = "studyflow"
+    # Limites específicos (por IP e por conta).
+    RATE_LIMIT_LOGIN_IP = "10 per minute; 50 per hour"
+    RATE_LIMIT_LOGIN_ACCOUNT = "5 per 15 minutes; 20 per day"
+    RATE_LIMIT_REGISTER_IP = "5 per hour"
+    RATE_LIMIT_SENSITIVE_USER = "10 per hour"
+
     DEBUG = False
     TESTING = False
 
@@ -66,10 +103,15 @@ class BaseConfig:
         """Validações executadas na inicialização. Sobrescrita por ambiente."""
         if not cls.SQLALCHEMY_DATABASE_URI:
             raise RuntimeError("DATABASE_URL não foi definida. Consulte o .env.example.")
+        if not cls.SECRET_KEY.strip():
+            raise RuntimeError("SECRET_KEY não foi definida. Consulte o .env.example.")
 
 
 class DevelopmentConfig(BaseConfig):
     DEBUG = True
+    # Em desenvolvimento local (http://localhost) o cookie não pode ser Secure.
+    AUTH_COOKIE_SECURE = _bool_env("AUTH_COOKIE_SECURE", False)
+    AUTH_COOKIE_NAME = "__Host-sf_session" if AUTH_COOKIE_SECURE else "sf_session"
 
 
 class TestingConfig(BaseConfig):
@@ -84,6 +126,14 @@ class TestingConfig(BaseConfig):
         else BaseConfig.SQLALCHEMY_ENGINE_OPTIONS
     )
     CORS_ORIGINS = ["http://localhost:5173"]
+    AUTH_COOKIE_SECURE = False
+    AUTH_COOKIE_NAME = "sf_session"
+    SESSION_IDLE_TIMEOUT_MINUTES = 120
+    SESSION_ABSOLUTE_TIMEOUT_HOURS = 168
+    # Desligado por padrão para que os testes não interfiram uns nos outros;
+    # os testes de rate limiting o ligam explicitamente.
+    RATELIMIT_ENABLED = False
+    RATELIMIT_STORAGE_URI = "memory://"
 
 
 class ProductionConfig(BaseConfig):
@@ -102,6 +152,8 @@ class ProductionConfig(BaseConfig):
             raise RuntimeError("CORS_ORIGINS não pode conter '*' em produção.")
         if any(not origin.startswith("https://") for origin in cls.CORS_ORIGINS):
             raise RuntimeError("Em produção, todas as origens em CORS_ORIGINS devem usar HTTPS.")
+        if not cls.AUTH_COOKIE_SECURE:
+            raise RuntimeError("Em produção, AUTH_COOKIE_SECURE deve ser true (cookies só via HTTPS).")
 
 
 CONFIG_BY_NAME: dict[str, type[BaseConfig]] = {

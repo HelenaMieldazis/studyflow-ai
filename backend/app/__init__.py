@@ -7,9 +7,11 @@ import logging
 from flask import Flask
 
 from app.config import BaseConfig, get_config
-from app.extensions import cors, db, migrate
+from app.extensions import cors, db, limiter, migrate
+from app.utils.auth import CSRF_HEADER, register_auth_hooks
 from app.utils.errors import register_error_handlers
 from app.utils.log_config import configure_logging
+from app.utils.origin_check import register_origin_check
 from app.utils.security_headers import register_security_headers
 
 
@@ -36,12 +38,13 @@ def create_app(config_name: str | None = None, config_overrides: dict | None = N
     # Extensões
     db.init_app(app)
     migrate.init_app(app, db)
+    limiter.init_app(app)
     cors.init_app(
         app,
         resources={r"/api/*": {"origins": app.config["CORS_ORIGINS"]}},
-        supports_credentials=True,  # necessário para cookies de sessão (Etapa 2)
+        supports_credentials=True,  # necessário para o cookie de sessão
         methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-        allow_headers=["Content-Type", "X-CSRF-Token"],
+        allow_headers=["Content-Type", CSRF_HEADER],
         max_age=600,
         always_send=False,  # só envia headers CORS quando há header Origin
     )
@@ -54,8 +57,14 @@ def create_app(config_name: str | None = None, config_overrides: dict | None = N
 
     register_blueprints(app)
 
+    register_origin_check(app)
+    register_auth_hooks(app)
     register_error_handlers(app)
     register_security_headers(app)
+
+    from app.cli import register_cli
+
+    register_cli(app)
 
     logging.getLogger(__name__).info("Aplicação iniciada (ambiente=%s)", config_class.__name__)
     return app

@@ -1,0 +1,35 @@
+.page {
+  min-height: 100vh;
+  background: var(--color-gray-neutral);
+  padding: var(--space-8) var(--space-4);
+}
+
+.article {
+  max-width: 42rem;
+  margin: 0 auto;
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-8) var(--space-6);
+}
+
+.article h1 {
+  color: var(--color-blue-deep);
+  margin: 0 0 var(--space-1);
+}
+
+.article h2 {
+  color: var(--color-blue-deep);
+  font-size: 1.125rem;
+  margin: var(--space-6) 0 var(--space-2);
+}
+
+.updated {
+  color: var(--color-text-muted);
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+.back {
+  margin-top: var(--space-8);
+}

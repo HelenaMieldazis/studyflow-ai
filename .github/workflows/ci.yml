@@ -36,6 +36,8 @@ jobs:
           cache: pip
           cache-dependency-path: backend/requirements*.txt
       - run: pip install -r requirements-dev.txt
+      # Migrações aplicam do zero e estão em sincronia com os modelos.
+      - run: flask --app run db upgrade && flask --app run db check
       - run: python -m pytest
 
   frontend:

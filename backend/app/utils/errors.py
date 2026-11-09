@@ -30,13 +30,45 @@ _PUBLIC_MESSAGES: dict[int, tuple[str, str]] = {
 }
 
 
-def error_response(status: int, code: str | None = None, message: str | None = None):
+class ApiError(Exception):
+    """Erro de negócio com resposta pública controlada.
+
+    Use para erros esperados (credenciais inválidas, conflito, validação). A
+    mensagem é exibida ao usuário, então nunca inclua detalhes internos nela.
+    """
+
+    def __init__(
+        self,
+        status: int,
+        code: str | None = None,
+        message: str | None = None,
+        fields: list[dict[str, str]] | None = None,
+    ) -> None:
+        super().__init__(code or str(status))
+        self.status = status
+        self.code = code
+        self.message = message
+        self.fields = fields
+
+
+def error_response(
+    status: int,
+    code: str | None = None,
+    message: str | None = None,
+    fields: list[dict[str, str]] | None = None,
+):
     default_code, default_message = _PUBLIC_MESSAGES.get(status, ("error", "Erro."))
-    body = {"error": {"code": code or default_code, "message": message or default_message}}
-    return jsonify(body), status
+    error: dict = {"code": code or default_code, "message": message or default_message}
+    if fields:
+        error["fields"] = fields
+    return jsonify({"error": error}), status
 
 
 def register_error_handlers(app: Flask) -> None:
+    @app.errorhandler(ApiError)
+    def handle_api_error(exc: ApiError):
+        return error_response(exc.status, exc.code, exc.message, exc.fields)
+
     @app.errorhandler(HTTPException)
     def handle_http_exception(exc: HTTPException):
         status = exc.code or 500

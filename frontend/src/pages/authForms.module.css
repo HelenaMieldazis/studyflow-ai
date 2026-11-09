@@ -1,0 +1,21 @@
+.subtitle {
+  color: var(--color-text-muted);
+  margin: 0 0 var(--space-6);
+}
+
+.submit {
+  width: 100%;
+  margin-top: var(--space-2);
+}
+
+.footer {
+  margin: var(--space-6) 0 0;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.privacy {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  margin: 0 0 var(--space-4);
+}

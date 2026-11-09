@@ -1,0 +1,128 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-bottom: var(--space-4);
+}
+
+.label {
+  font-weight: 500;
+  font-size: 0.9375rem;
+  color: var(--color-text);
+}
+
+.input {
+  font: inherit;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid #b9c2cd;
+  border-radius: var(--radius-md);
+  background: var(--color-white);
+  color: var(--color-text);
+  min-height: 2.75rem;
+}
+
+.input:focus-visible {
+  outline: 3px solid var(--color-blue-light);
+  border-color: var(--color-blue-academic);
+  outline-offset: 0;
+}
+
+.inputError {
+  border-color: var(--color-danger);
+}
+
+.hint {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.error {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-danger);
+}
+
+.button {
+  font: inherit;
+  font-weight: 500;
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-4);
+  min-height: 2.75rem;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.primary {
+  background: var(--color-blue-deep);
+  color: var(--color-white);
+}
+
+.primary:hover:not(:disabled) {
+  background: var(--color-blue-academic);
+}
+
+.secondary {
+  background: var(--color-white);
+  color: var(--color-blue-deep);
+  border-color: #b9c2cd;
+}
+
+.secondary:hover:not(:disabled) {
+  background: var(--color-gray-neutral);
+}
+
+.danger {
+  background: var(--color-danger);
+  color: var(--color-white);
+}
+
+.danger:hover:not(:disabled) {
+  background: #912018;
+}
+
+.alert {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-4);
+  border: 1px solid;
+  font-size: 0.9375rem;
+}
+
+.alert_error {
+  background: #fef3f2;
+  border-color: #fecdca;
+  color: #912018;
+}
+
+.alert_success {
+  background: #ecfdf3;
+  border-color: #abefc6;
+  color: #085d3a;
+}
+
+.alert_info {
+  background: var(--color-blue-light);
+  border-color: #b8cade;
+  color: var(--color-blue-deep);
+}
+
+.checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.checkbox input {
+  width: 1.125rem;
+  height: 1.125rem;
+  margin-top: 0.15rem;
+  accent-color: var(--color-blue-deep);
+}

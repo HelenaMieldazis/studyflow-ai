@@ -7,6 +7,7 @@ import '@fontsource/inter/600.css'
 import '@fontsource/inter/700.css'
 import './styles/global.css'
 import App from './App'
+import { AuthProvider } from './contexts/AuthContext'
 
 const rootElement = document.getElementById('root')
 if (!rootElement) throw new Error('Elemento #root não encontrado em index.html')
@@ -14,7 +15,9 @@ if (!rootElement) throw new Error('Elemento #root não encontrado em index.html'
 createRoot(rootElement).render(
   <StrictMode>
     <BrowserRouter>
-      <App />
+      <AuthProvider>
+        <App />
+      </AuthProvider>
     </BrowserRouter>
   </StrictMode>,
 )

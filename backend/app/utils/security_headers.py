@@ -22,6 +22,8 @@ def register_security_headers(app: Flask) -> None:
     def apply_security_headers(response: Response) -> Response:
         for header, value in SECURITY_HEADERS.items():
             response.headers.setdefault(header, value)
+        # Respostas da API contêm dados pessoais: nunca devem ficar em cache.
+        response.headers.setdefault("Cache-Control", "no-store")
         # HSTS só faz sentido sob HTTPS (produção).
         if not app.debug and not app.testing:
             response.headers.setdefault("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
